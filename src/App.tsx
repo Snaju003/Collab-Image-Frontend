@@ -1,33 +1,26 @@
-import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/react";
-import { useAuth } from "@clerk/react";
+import { Navigate, Route, Routes } from "react-router"
 
-const App = () => {
-  const { getToken } = useAuth();
+import { ProtectedRoute } from "@/components/auth/protected-route"
+import { AuthPage } from "@/pages/auth-page"
+import { DashboardPage } from "@/pages/dashboard-page"
 
-  const handleProtectedCall = async () => {
-    const token = await getToken();
-
-    await fetch("http://localhost:4000/protected", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  };
+function App() {
 
   return (
-    <>
-      <header>
-        <Show when='signed-out'>
-          <SignInButton />
-          <SignUpButton />
-        </Show>
-        <Show when='signed-in'>
-          <UserButton />
-          <button onClick={handleProtectedCall}>Call API</button>
-        </Show>
-      </header>
-    </>
-  );
-};
+    <Routes>
+      <Route path="/login" element={<AuthPage mode="login" />} />
+      <Route path="/register" element={<AuthPage mode="register" />} />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
+  )
+}
 
-export default App;
+export default App
